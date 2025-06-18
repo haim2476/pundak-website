@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -35,54 +35,27 @@
             position: relative;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: center; /* Center content (now just the button) */
             min-height: 500px; /* גובה מינימלי למראה מרשים */
         }
 
-        .hero-bg-logo { /* New style for the large transparent logo in hero */
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2; /* **לוגו עכשיו מעל האוברליי** */
-            pointer-events: none; /* Allows clicks to pass through to elements behind it */
-        }
-
-        .hero-bg-logo img {
-            width: 80%; /* Make the logo large */
-            max-width: 800px; /* Limit max size */
-            height: auto;
-            opacity: 0.9; /* Make it very visible */
-            object-fit: contain; /* Ensure the image fits within its container */
-            filter: none; /* Remove any previous previous shadow filters */
-        }
+        /* Removed .hero-bg-logo styles entirely */
+        /* Removed .hero-bg-logo img styles entirely */
 
         .hero-overlay {
-            background-color: rgba(0, 0, 0, 0.3); /* **שכבת כהה עדינה יותר כדי לראות רקע** */
+            background-color: rgba(0, 0, 0, 0.6); /* שכבת כהה יותר כדי להבליט את הכפתור */
             position: absolute;
             inset: 0;
             border-radius: 0 0 1.5rem 1.5rem;
-            z-index: 1; /* **אוברליי עכשיו מתחת ללוגו, מעל הרקע** */
+            z-index: 1; /* אוברליי עכשיו מתחת לכפתור */
             box-shadow: none;
             animation: none;
         }
 
-        .hero-content {
-            position: relative;
-            z-index: 3; /* **תוכן מעל הכל** */
-            /* Removed padding, border-radius, background-color, backdrop-filter, box-shadow */
-            background-color: rgba(255, 255, 255, 0.0); /* Fully transparent background */
-            backdrop-filter: none; /* Remove blur */
-            -webkit-backdrop-filter: none; /* For Safari */
-            text-align: center;
-        }
-
-        .hero-section h1 { /* Removed this style as H1 is replaced by image */
-            display: none; /* Hide the H1 text that was replaced by logo image */
-        }
-        .hero-section p { /* This p tag will be removed */
-            display: none; /* Hide the descriptive paragraph */
+        /* Removed .hero-content style as the div is removed. Button styles are applied directly. */
+        /* Removed .hero-section h1 and .hero-section p styles as they are not needed */
+        .hero-section h1, .hero-section p {
+            display: none; /* Explicitly hide any remaining H1 or P tags in hero if they reappear */
         }
 
         .section-title {
@@ -124,12 +97,13 @@
             color: var(--button-text-light); /* טקסט לבן */
             font-weight: 600;
             padding: 0.75rem 1.5rem; /* מרווח פנימי גדול יותר */
-            border-radius: 0.5rem; /* פינות מעוגלות פחות קיצוניות */
-            margin-top: 1rem;
+            border-radius: 9999px; /* **אליפסה** */
+            margin-top: 0; /* Remove margin top now that it's directly in flex container */
             cursor: pointer;
             box-shadow: 0 3px 5px rgba(0,0,0,0.2); /* צל חזק יותר */
             transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
             border: none; /* הסרת בורדר */
+            z-index: 2; /* Ensure button is above overlay */
         }
         .llm-button:hover, .waze-button:hover {
             background-color: #C1941F; /* זהב כהה יותר בהובר */
@@ -399,16 +373,10 @@
 
     <!-- Hero Section -->
     <section class="hero-section h-[600px] rounded-b-xl shadow-lg mb-12">
-        <div class="hero-bg-logo">
-            <img src="https://i.imgur.com/K3MPMOq.png" alt="לוגו הפונדק">
-        </div>
         <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <!-- p tag removed as per user request -->
-            <button onclick="window.showSection(['main-menu-section', 'meat-snacks-menu-section', 'fish-menu-section'], document.querySelector('nav ul li a[onclick*=\'main-menu-section\']'));" class="mt-8 llm-button">
-                צפו בתפריט
-            </button>
-        </div>
+        <button onclick="window.showSection(['main-menu-section', 'meat-snacks-menu-section', 'fish-menu-section'], document.querySelector('nav ul li a[onclick*=\'main-menu-section\']'));" class="llm-button">
+            צפו בתפריט
+        </button>
     </section>
 
     <main>
@@ -721,6 +689,12 @@
             // Default to showing the main menu section
             const mainMenu = document.getElementById('main-menu-section');
             if (mainMenu) mainMenu.style.display = 'block';
+
+            // Ensure the story modal is hidden on load
+            const restaurantStoryModal = document.getElementById('restaurantStoryModal');
+            if (restaurantStoryModal) {
+                restaurantStoryModal.style.display = 'none';
+            }
         });
 
 
@@ -855,3 +829,4 @@
     </script>
 </body>
 </html>
+ 
