@@ -1,23 +1,669 @@
-w-full h-48 object-cover rounded-md mb-4 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/300x200/DAA520/FFFFFF?text=גפילטע+ממולא';">
-                        <h3 class="text-2xl font-bold text-[--primary-text] mb-2">גפילטע ממולא</h3>
-                        <p class="text-[--secondary-text] text-center mb-4 flex-grow">דג ממולא עשיר בטעמים, מנה מיוחדת לאירועים חגיגיים.</p>
-                        <button class="llm-button" data-dish-name="גפילטע ממולא" onclick="window.getDishDescription(this)">✨ גלו עוד</button>
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>הפונדק - מסעדה יהודית יוקרתית</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Varela+Round&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F8F8; /* רקע בהיר ונקי */
+            color: #333333; /* טקסט כהה לקריאות */
+            position: relative; /* Needed for the full-page logo to position correctly */
+        }
+        /* צבעים מותאמים אישית בהשראת Goldy's */
+        :root {
+            --primary-bg: #FFFFFF; /* רקע לבן ראשי */
+            --header-footer-bg: #1A202C; /* אפור כהה-שחור לכותרת ותחתית */
+            --accent-gold: #DAA520; /* צבע זהב חזק למבטאים */
+            --primary-text: #333333; /* טקסט ראשי כהה */
+            --secondary-text: #555555; /* טקסט משני/תיאורים */
+            --button-text-light: #FFFFFF; /* טקסט לבן לכפתורים כהים */
+            --button-text-dark: #1A202C; /* טקסט כהה לכפתורים בהירים */
+            --border-color: #E0E0E0; /* גבולות עדינים */
+            --modal-bg: #FFFFFF; /* רקע מודל לבן */
+        }
+
+        /* Full page transparent logo */
+        #full-page-logo-bg {
+            position: fixed; /* Fixed to viewport */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://i.imgur.com/K3MPMOq.png'); /* The logo as full page background */
+            background-size: contain; /* הלוגo יתאים את עצמו למסך ללא קטיעות */
+            background-repeat: no-repeat;
+            background-position: center center;
+            opacity: 0.4; /* שקיפות עדינה פחות (בולט יותר) */
+            filter: brightness(0.7); /* הכהיית הלוגו מעט */
+            z-index: -1; /* Ensure it's behind everything */
+            pointer-events: none; /* Allows interaction with elements beneath it */
+        }
+
+        /* Hero Section - רקע בהיר ונקי, ללא אנימציות כבדות */
+        .hero-section {
+            background-image: url('https://i.imgur.com/xYkVhIb.jpeg'); /* תמונת שער חדשה */
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center content (now just the button) */
+            min-height: 400px; /* Smaller min-height for mobile */
+            height: 600px; /* Default height for larger screens */
+            @media (max-width: 767px) { /* Adjust for mobile */
+                height: 400px; /* Fixed height for mobile */
+            }
+            z-index: 0; /* Ensure hero section is above the full-page logo */
+        }
+
+        .hero-overlay {
+            background-color: rgba(0, 0, 0, 0.3); /* שכבת כהה פחות, להארת התמונה */
+            position: absolute;
+            inset: 0;
+            border-radius: 0 0 1.5rem 1.5rem;
+            z-index: 1; /* אוברליי עכשיו מתחת לכפתור */
+            box-shadow: none;
+            animation: none;
+        }
+
+        /* Removed .hero-content style as the div is removed. Button styles are applied directly. */
+        /* Removed .hero-section h1 and .hero-section p styles as they are not needed */
+        .hero-section h1, .hero-section p {
+            display: none; /* Explicitly hide any remaining H1 or P tags in hero if they reappear */
+        }
+
+        /* Header Logo Styling */
+        header .rounded-md img {
+            height: 2rem; /* h-8 equivalent */
+            width: auto;
+            filter: brightness(0.8); /* Changed filter for header logo */
+            transition: filter 0.3s ease;
+        }
+        @media (min-width: 768px) { /* Medium screens and up */
+            header .rounded-md img {
+                height: 2.5rem; /* md:h-10 equivalent */
+            }
+        }
+        header .rounded-md img:hover {
+            filter: brightness(1); /* Full brightness on hover */
+        }
+
+
+        .section-title {
+            color: var(--primary-text); /* טקסט כהה לכותרות */
+            position: relative;
+            padding-bottom: 0.75rem; /* ריווח גדול יותר */
+            text-shadow: none; /* הסרת צל */
+            animation: none; /* הסרת אנימציות */
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 50%; /* מרכוז הקו */
+            transform: translateX(50%); /* קיזוז למרכוז */
+            width: 80px; /* קו הדגשה רחב יותר */
+            height: 4px;
+            background: var(--accent-gold); /* קו הדגשה בצבע זהב */
+            border-radius: 9999px;
+            box-shadow: none; /* הסרת זוהר */
+        }
+
+        .menu-item-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            background-color: var(--primary-bg); /* רקע לבן לכרטיסים */
+            color: var(--primary-text);
+            border: 1px solid var(--border-color); /* גבול עדין */
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1); /* צל בולט יותר למראה מרחף */
+        }
+        .menu-item-card:hover {
+            transform: translateY(-5px); /* קפיצה בולטת יותר בהובר */
+            box-shadow: 0 12px 20px rgba(0,0,0,0.15), 0 0 15px 3px rgba(218, 165, 32, 0.4); /* זוהר זהב חזק יותר בהובר */
+            background-color: #FEFEEA; /* רקע שמנת בהירה בהובר */
+        }
+
+        .llm-button, .waze-button {
+            background-color: rgba(218, 165, 32, 0.8); /* **זהב שקוף יותר** */
+            color: var(--button-text-light); /* טקסט לבן */
+            font-weight: 600;
+            padding: 0.75rem 1.5rem; /* מרווח פנימי גדול יותר */
+            border-radius: 9999px; /* **אליפסה** */
+            margin-top: 5rem; /* **הזזת הכפתור למטה** */
+            cursor: pointer;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.25); /* **צל חזק יותר למראה מרחף** */
+            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            border: none; /* הסרת בורדר */
+            z-index: 2; /* Ensure button is above overlay */
+            display: none; /* **הסתרת הכפתור לגמרי** */
+        }
+        .llm-button:hover, .waze-button:hover {
+            background-color: #C1941F; /* זהב כהה יותר בהובר */
+            transform: scale(1.05) translateY(-2px); /* **אפקט קפיצה קל בהובר** */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.35); /* **צל גדול יותר בהובר** */
+        }
+        /* Style for buttons within menu item cards */
+        .menu-item-card .llm-button {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            margin-top: 0.75rem;
+            direction: rtl; /* Ensure RTL for Hebrew text inside button */
+        }
+
+        /* Order button specific styles */
+        /* Removed as the button is now removed */
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 100; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.6); /* Darker overlay for modal */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--modal-bg); /* רקע לבן */
+            margin: auto;
+            padding: 1.5rem; /* Reduced padding for mobile */
+            border-radius: 1rem;
+            width: 90%; /* Wider for mobile */
+            max-width: 600px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3); /* צל נקי */
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+            border: 1px solid var(--border-color); /* גבול עדין */
+            color: var(--primary-text);
+        }
+        @media (min-width: 768px) { /* Restore for larger screens */
+            .modal-content {
+                padding: 2.5rem;
+                width: 80%;
+            }
+        }
+
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .close-button {
+            color: #AAAAAA; /* אפור עדין */
+            font-size: 2rem; /* Adjusted for mobile */
+            font-weight: bold;
+            position: absolute;
+            top: 0.5rem; /* Adjusted for mobile */
+            right: 0.75rem; /* Adjusted for mobile */
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        @media (min-width: 768px) { /* Restore for larger screens */
+            .close-button {
+                font-size: 2.25rem;
+                top: 1rem;
+                right: 1.25rem;
+            }
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: var(--accent-gold); /* זהב בהובר */
+            text-decoration: none;
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top: 4px solid var(--accent-gold); /* ספינר זהב */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto 0; /* ריווח מלמעלה */
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Removed #recipeIngredientsInput and #generatedRecipeOutput styles as they are no longer used */
+
+        /* Styles for the About section background */
+        #about {
+            background-image: url('https://i.imgur.com/dzI4g6c.jpeg'); /* **תמונת רקע חדשה לאודותינו** */
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            z-index: 0;
+            overflow: hidden;
+            padding-top: 4rem;
+            padding-bottom: 4rem;
+        }
+
+        #about::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.3); /* שכבת אוברליי שחורה שקופה חלקית */
+            z-index: 1;
+            border-radius: 1rem;
+        }
+
+        #about .container {
+            position: relative;
+            z-index: 2;
+        }
+
+        #about .max-w-3xl { /* Apply styles to the inner text container for better contrast */
+            position: relative;
+            z-index: 3;
+            background-color: rgba(255, 255, 255, 0.9); /* רקע לבן כמעט אטום לטקסט */
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        #about h2, #about p {
+            color: var(--primary-text); /* לוודא צבע טקסט כהה וקריא על רקע בהיר */
+            text-shadow: none; /* להסיר צל אם היה כדי לא לזהם קריאות */
+        }
+
+
+        /* Styles for the main menu section background */
+        #main-menu-section {
+            background-image: url('https://i.imgur.com/43ukox1.jpeg'); /* תמונת רקע חדשה לתפריט */
+            background-size: cover;
+            background-position: center;
+            position: relative; /* נחוץ עבור שכבת האוברליי */
+            z-index: 0; /* לוודא שהאוברליי והתוכן מעליו */
+            overflow: hidden; /* למקרה שיש אלמנטים שגולשים */
+            padding-top: 4rem; /* מרווח עליון ותחתון */
+            padding-bottom: 4rem;
+        }
+
+        #main-menu-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-color: rgba(255, 255, 255, 0.5); /* **שקיפות מוגברת כדי לראות את הלוגו של כל הדף** */
+            z-index: 1;
+            border-radius: 1rem;
+        }
+
+        #main-menu-section .container {
+            position: relative;
+            z-index: 2; /* לוודא שהתוכן יהיה מעל האוברליי */
+        }
+
+        /* Styles for the location section background */
+        #location {
+            background-image: url('https://i.imgur.com/uMyw2MP.jpeg'); /* תמונת רקע חדשה למיקום */
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            z-index: 0;
+            overflow: hidden;
+            padding-top: 4rem;
+            padding-bottom: 4rem;
+            color: #FFFFFF; /* **שינוי צבע טקסט לכותרות ללבן** */
+        }
+
+        #location::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.3); /* שכבת אוברליי שחורה שקופה חלקית - מאפשרת לראות את התמונה */
+            z-index: 1;
+            border-radius: 1rem;
+        }
+
+        #location .container {
+            position: relative;
+            z-index: 2;
+        }
+
+        #location .max-w-2xl { /* Apply styles to the inner card for better contrast */
+            position: relative;
+            z-index: 3; /* Ensure this card is above the overlay */
+            background-color: rgba(255, 255, 255, 0.0); /* **רקע שקוף לגמרי** */
+            border-color: transparent; /* **גבול שקוף** */
+            box-shadow: none; /* **הסרת צל** */
+        }
+
+        #location .max-w-2xl p, #location .max-w-2xl span {
+            color: #FFFFFF; /* **שינוי צבע טקסט וספאן בתוך הבלוק ללבן** */
+        }
+
+        /* Styling for Waze button inside location, ensuring text is white */
+        #location .waze-button {
+            color: #FFFFFF; /* White text for Waze button */
+        }
+        #location .waze-button img {
+            filter: invert(1) grayscale(1) brightness(200%); /* Makes Waze logo white/bright on dark background */
+        }
+
+
+        /* Styles for the Meat Snacks Menu Section */
+        #meat-snacks-menu-section {
+            display: none; /* Initially hidden */
+            background-image: url('https://i.imgur.com/uMyw2MP.jpeg'); /* תמונת רקע חדשה לנישנוש בשרי */
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            z-index: 0;
+            overflow: hidden;
+            padding-top: 4rem;
+            padding-bottom: 4rem;
+        }
+
+        #meat-snacks-menu-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.3); /* שכבת אוברליי שחורה שקופה חלקית */
+            z-index: 1;
+            border-radius: 1rem;
+        }
+
+        #meat-snacks-menu-section .container {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Styles for the new Fish Menu Section */
+        #fish-menu-section {
+            display: none; /* Initially hidden */
+            background-image: url('https://i.imgur.com/ARNZcw4.jpeg'); /* **תמונת רקע חדשה לדגים** */
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            z-index: 0;
+            overflow: hidden;
+            padding-top: 4rem;
+            padding-bottom: 4rem;
+        }
+
+        #fish-menu-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-color: rgba(255, 255, 255, 0.5); /* **שקיפות מוגברת כדי לראות את הלוגו של כל הדף** */
+            z-index: 1;
+            border-radius: 1rem;
+        }
+
+        #fish-menu-section .container {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Style for active navigation link */
+        .nav-link-active {
+            color: var(--accent-gold);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Full page transparent logo background -->
+    <div id="full-page-logo-bg"></div>
+
+    <!-- Header -->
+    <header class="bg-[--header-footer-bg] text-white p-4 shadow-lg relative">
+        <nav class="container mx-auto flex justify-between items-center relative">
+            <a href="#" class="rounded-md px-3 py-1">
+                <img src="https://i.imgur.com/K3MPMOq.png" alt="לוגו הפונדק" class="h-8 md:h-10" style="filter: brightness(0.8);">
+            </a>
+            <ul class="flex space-x-6 space-x-reverse">
+                <li><a href="#about" class="hover:text-[--accent-gold] transition duration-300">אודות</a></li>
+                <li><a href="#" class="hover:text-[--accent-gold] transition duration-300 nav-link-active" onclick="window.showSection('main-menu-section', this)">תפריט</a></li>
+                <li><a href="#" class="hover:text-[--accent-gold] transition duration-300" onclick="window.showSection('meat-snacks-menu-section', this)">נישנוש בשרי</a></li>
+                <li><a href="#" class="hover:text-[--accent-gold] transition duration-300" onclick="window.showSection('fish-menu-section', this)">דגים</a></li>
+                <li><a href="#location" class="hover:text-[--accent-gold] transition duration-300">מיקום ושעות פתיחה</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section h-[600px] rounded-b-xl shadow-lg mb-12">
+        <div class="hero-overlay"></div>
+        <!-- Removed button 'צפו בתפריט' as per user request -->
+    </section>
+
+    <main>
+        <!-- About Section -->
+        <section id="about" class="px-6 py-16 text-center">
+            <div class="container mx-auto text-center">
+                <h2 class="text-4xl font-semibold mb-12 section-title inline-block">אודותינו</h2>
+                <div class="max-w-3xl mx-auto text-lg leading-relaxed text-[--primary-text]">
+                    <p class="mb-4">
+                        ברוכים הבאים ל"הפונדק", המקום בו מסורת ארוכת שנים פוגשת אלגנטיות עכשווית.
+                        אנו מגישים לכם חוויה קולינרית יהודית שורשית ואותנטית, תוך הקפדה על חומרי גלם טריים ואיכותיים,
+                        המבטיחים טעם עשיר ובלתי נשכח בכל ביס.
+                        <br>
+                        <span class="font-bold text-[--accent-gold]">אנו שמחים לארח גם אירועים קטנים ויוקרתיים, עד 50 אורחים, באווירה אינטימית וקסומה.</span>
+                    </p>
+                    <button class="llm-button mt-4" onclick="window.generateEventTips()">✨ השראה לאירועים (AI)</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Menu Section -->
+        <section id="main-menu-section" class="px-6 py-16 rounded-xl shadow-inner mb-12">
+            <div class="container mx-auto text-center">
+                <h2 class="text-4xl font-semibold mb-12 section-title inline-block">התפריט שלנו</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                    <!-- Menu Item: Chulent -->
+                    <div class="rounded-xl shadow-lg p-6 flex flex-col items-center menu-item-card">
+                        <img src="https://i.imgur.com/vRBFy08.jpeg" alt="צ'ולנט גורמה" class="w-full h-48 object-cover rounded-md mb-4 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/300x200/DAA520/FFFFFF?text=צ'ולנט';">
+                        <h3 class="text-2xl font-bold text-[--primary-text] mb-2">צ'ולנט</h3>
+                        <p class="text-[--secondary-text] text-center mb-4 flex-grow" id="chulent-desc">הצ'ולנט המסורתי שלנו, מבושל באיטיות ומוגש בחמימות ביתית.</p>
+                        <button class="llm-button" data-dish-name="צ'ולנט" onclick="window.getDishDescription(this)">✨ גלו עוד</button>
+                        <button class="llm-button mt-2" data-dish-name="צ'ולנט" onclick="window.getDishStory(this)">✨ סיפור מנה (AI)</button>
+                    </div>
+
+                    <!-- Menu Item: Kugel -->
+                    <div class="rounded-xl shadow-lg p-6 flex flex-col items-center menu-item-card">
+                        <img src="https://i.imgur.com/wQkTUQY.jpeg" alt="קיגל מוזהב" class="w-full h-48 object-cover rounded-md mb-4 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/300x200/DAA520/FFFFFF?text=קיגל';">
+                        <h3 class="text-2xl font-bold text-[--primary-text] mb-2">קיגל</h3>
+                        <p class="text-[--secondary-text] text-center mb-4 flex-grow" id="kugel-desc">קיגל אטריות או תפוחי אדמה, פריך מבחוץ ונימוח מבפנים.</p>
+                        <button class="llm-button" data-dish-name="קיגל" onclick="window.getDishDescription(this)">✨ גלו עוד</button>
+                        <button class="llm-button mt-2" data-dish-name="קיגל" onclick="window.getDishStory(this)">✨ סיפור מנה (AI)</button>
+                    </div>
+
+                    <!-- Menu Item: Schnitzel -->
+                    <div class="rounded-xl shadow-lg p-6 flex flex-col items-center menu-item-card">
+                        <img src="https://i.imgur.com/dOVPt93.jpeg" alt="שניצל פריך" class="w-full h-48 object-cover rounded-md mb-4 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/300x200/DAA520/FFFFFF?text=שניצל';">
+                        <h3 class="text-2xl font-bold text-[--primary-text] mb-2">שניצל</h3>
+                        <p class="text-[--secondary-text] text-center mb-4 flex-grow" id="schnitzel-desc">שניצל עוף פריך ועסיסי, בציפוי זהוב, אהוב על כולם.</p>
+                        <button class="llm-button" data-dish-name="שניצל" onclick="window.getDishDescription(this)">✨ גלו עוד</button>
+                        <button class="llm-button mt-2" data-dish-name="שניצל" onclick="window.getDishStory(this)">✨ סיפור מנה (AI)</button>
+                    </div>
+
+                    <!-- Menu Item: Gelach -->
+                    <div class="rounded-xl shadow-lg p-6 flex flex-col items-center menu-item-card">
+                        <img src="https://i.imgur.com/uiC3EME.jpeg" alt="גלא מסורתי" class="w-full h-48 object-cover rounded-md mb-4 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/300x200/DAA520/FFFFFF?text=גלא';">
+                        <h3 class="text-2xl font-bold text-[--primary-text] mb-2">גלא (רגל קרושה)</h3>
+                        <p class="text-[--secondary-text] text-center mb-4 flex-grow" id="gelach-desc">מנה מסורתית ייחודית, סוד הטעם של הפונדק.</p>
+                        <button class="llm-button" data-dish-name="גלא (רגל קרושה)" onclick="window.getDishDescription(this)">✨ גלו עוד</button>
+                        <button class="llm-button mt-2" data-dish-name="גלא (רגל קרושה)" onclick="window.getDishStory(this)">✨ סיפור מנה (AI)</button>
+                    </div>
+
+                    <!-- Menu Item: Chraime -->
+                    <div class="rounded-xl shadow-lg p-6 flex flex-col items-center menu-item-card">
+                        <img src="https://i.imgur.com/Zbc1Ecg.jpeg" alt="חריימה פיקנטי" class="w-full h-48 object-cover rounded-md mb-4 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/300x200/DAA520/FFFFFF?text=חריימה';">
+                        <h3 class="text-2xl font-bold text-[--primary-text] mb-2">חריימה</h3>
+                        <p class="text-[--secondary-text] text-center mb-4 flex-grow" id="chraime-desc">חריימה דגים פיקנטי, רוטב עשיר בטעמים ים תיכוניים.</p>
+                        <button class="llm-button" data-dish-name="חריימה" onclick="window.getDishDescription(this)">✨ גלו עוד</button>
+                        <button class="llm-button mt-2" data-dish-name="חריימה" onclick="window.getDishStory(this)">✨ סיפור מנה (AI)</button>
+                    </div>
+
+                    <!-- Menu Item: Rice -->
+                    <div class="rounded-xl shadow-lg p-6 flex flex-col items-center menu-item-card">
+                        <img src="https://i.imgur.com/j4zzg1c.jpeg" alt="אורז יוקרתי" class="w-full h-48 object-cover rounded-md mb-4 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/300x200/DAA520/FFFFFF?text=אורז';">
+                        <h3 class="text-2xl font-bold text-[--primary-text] mb-2">אורז</h3>
+                        <p class="text-[--secondary-text] text-center mb-4 flex-grow" id="rice-desc">אורז לבן רך ונימוח, תוספת קלאסית לכל מנה.</p>
+                        <button class="llm-button" data-dish-name="אורז" onclick="window.getDishDescription(this)">✨ גלו עוד</button>
+                        <button class="llm-button mt-2" data-dish-name="אורז" onclick="window.getDishStory(this)">✨ סיפור מנה (AI)</button>
+                    </div>
+
+                    <!-- Menu Item: Chopped Liver -->
+                    <div class="rounded-xl shadow-lg p-6 flex flex-col items-center menu-item-card">
+                        <img src="https://i.imgur.com/DQ7URHo.jpeg" alt="כבד קצוץ מעודן" class="w-full h-48 object-cover rounded-md mb-4 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/300x200/DAA520/FFFFFF?text=כבד+קצוץ';">
+                        <h3 class="text-2xl font-bold text-[--primary-text] mb-2">כבד קצוץ</h3>
+                        <p class="text-[--secondary-text] text-center mb-4 flex-grow" id="chopped-liver-desc">כבד קצוץ עשיר וקרמי, מוגש עם בצל מטוגן וביצה.</p>
+                        <button class="llm-button" data-dish-name="כבד קצוץ" onclick="window.getDishDescription(this)">✨ גלו עוד</button>
+                        <button class="llm-button mt-2" data-dish-name="כבד קצוץ" onclick="window.getDishStory(this)">✨ סיפור מנה (AI)</button>
+                    </div>
+
+                    <!-- Menu Item: Salads -->
+                    <div class="rounded-xl shadow-lg p-6 flex flex-col items-center menu-item-card">
+                        <img src="https://i.imgur.com/0eQnLS7.jpeg" alt="סלטי שף" class="w-full h-48 object-cover rounded-md mb-4 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/300x200/DAA520/FFFFFF?text=סלטים';">
+                        <h3 class="text-2xl font-bold text-[--primary-text] mb-2">סלטים</h3>
+                        <p class="text-[--secondary-text] text-center mb-4 flex-grow" id="salads-desc">מגוון רחב של סלטים טריים, ליווי מושלם לארוחה.</p>
+                        <button class="llm-button" data-dish-name="סלטים" onclick="window.getDishDescription(this)">✨ גלו עוד</button>
+                        <button class="llm-button mt-2" data-dish-name="סלטים" onclick="window.getDishStory(this)">✨ סיפור מנה (AI)</button>
                     </div>
 
                 </div>
             </div>
         </section>
 
-        <!-- Location & Hours Section -->
+        <!-- Meat Snacks Menu Section -->
+        <section id="meat-snacks-menu-section" class="px-6 py-16 rounded-xl shadow-inner mb-12">
+            <div class="container mx-auto text-center">
+                <h2 class="text-4xl font-semibold mb-12 section-title inline-block">נישנוש בשרי</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                    <!-- Meat Snack Item: Burekas Meat/Liver -->
+                    <div class="rounded-xl shadow-lg p-6 flex flex-col items-center menu-item-card">
+                        <img src="https://i.imgur.com/ARNZcw4.jpeg" alt="בורקס בשר" class="w-full h-48 object-cover rounded-md mb-4 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/300x200/DAA520/FFFFFF?text=בורקס+בשר';">
+                        <h3 class="text-2xl font-bold text-[--primary-text] mb-2">בורקס בשר/כבד</h3>
+                        <p class="text-[--secondary-text] text-center mb-4 flex-grow">בורקס פריך במילוי עשיר של בשר או כבד מתובל.</p>
+                        <button class="llm-button" data-dish-name="בורקס בשר/כבד" onclick="window.getDishDescription(this)">✨ גלו עוד</button>
+                        <button class="llm-button mt-2" data-dish-name="בורקס בשר/כבד" onclick="window.getDishStory(this)">✨ סיפור מנה (AI)</button>
+                    </div>
+
+                    <!-- Meat Snack Item: Tortilla Meat/Liver -->
+                    <div class="rounded-xl shadow-lg p-6 flex flex-col items-center menu-item-card">
+                        <img src="https://i.imgur.com/FCYylkC.jpeg" alt="טורטייה בשר/כבד" class="w-full h-48 object-cover rounded-md mb-4 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/300x200/DAA520/FFFFFF?text=טורטייה+בשר+כבד';">
+                        <h3 class="text-2xl font-bold text-[--primary-text] mb-2">טורטייה בשר/כבד</h3>
+                        <p class="text-[--secondary-text] text-center mb-4 flex-grow">טורטייה עשירה במילוי בשר או כבד, פריכה ומשביעה.</p>
+                        <button class="llm-button" data-dish-name="טורטייה בשר/כבד" onclick="window.getDishDescription(this)">✨ גלו עוד</button>
+                        <button class="llm-button mt-2" data-dish-name="טורטייה בשר/כבד" onclick="window.getDishStory(this)">✨ סיפור מנה (AI)</button>
+                    </div>
+
+                    <!-- Meat Snack Item: Liver Cigar -->
+                    <div class="rounded-xl shadow-lg p-6 flex flex-col items-center menu-item-card">
+                        <img src="https://i.imgur.com/SWVWwVm.jpeg" alt="סיגר כבד" class="w-full h-48 object-cover rounded-md mb-4 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/300x200/DAA520/FFFFFF?text=סיגר+כבד';">
+                        <h3 class="text-2xl font-bold text-[--primary-text] mb-2">סיגר כבד</h3>
+                        <p class="text-[--secondary-text] text-center mb-4 flex-grow">סיגרים פריכים במילוי כבד קצוץ עשיר, חטיף מעודן לכל אירוע.</p>
+                        <button class="llm-button" data-dish-name="סיגר כבד" onclick="window.getDishDescription(this)">✨ גלו עוד</button>
+                        <button class="llm-button mt-2" data-dish-name="סיגר כבד" onclick="window.getDishStory(this)">✨ סיפור מנה (AI)</button>
+                    </div>
+
+                    <!-- Meat Snack Item: Quarter Chicken -->
+                    <div class="rounded-xl shadow-lg p-6 flex flex-col items-center menu-item-card">
+                        <img src="https://i.imgur.com/IKYdhsH.jpeg" alt="רבע עוף" class="w-full h-48 object-cover rounded-md mb-4 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/300x200/DAA520/FFFFFF?text=רבע+עוף';">
+                        <h3 class="text-2xl font-bold text-[--primary-text] mb-2">רבע עוף</h3>
+                        <p class="text-[--secondary-text] text-center mb-4 flex-grow">רבע עוף עסיסי ועשיר בטעמים, צלוי לשלמות.</p>
+                        <button class="llm-button" data-dish-name="רבע עוף" onclick="window.getDishDescription(this)">✨ גלו עוד</button>
+                        <button class="llm-button mt-2" data-dish-name="רבע עוף" onclick="window.getDishStory(this)">✨ סיפור מנה (AI)</button>
+                    </div>
+
+                    <!-- Meat Snack Item: Meatball -->
+                    <div class="rounded-xl shadow-lg p-6 flex flex-col items-center menu-item-card">
+                        <img src="https://i.imgur.com/apLsOcx.jpeg" alt="קציצת בשר" class="w-full h-48 object-cover rounded-md mb-4 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/300x200/DAA520/FFFFFF?text=קציצת+בשר';">
+                        <h3 class="text-2xl font-bold text-[--primary-text] mb-2">קציצת בשר</h3>
+                        <p class="text-[--secondary-text] text-center mb-4 flex-grow">קציצות בשר עסיסיות ומטובלות, מושלמות כתוספת או כחטיף.</p>
+                        <button class="llm-button" data-dish-name="קציצת בשר" onclick="window.getDishDescription(this)">✨ גלו עוד</button>
+                        <button class="llm-button mt-2" data-dish-name="קציצת בשר" onclick="window.getDishStory(this)">✨ סיפור מנה (AI)</button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Fish Menu Section -->
+        <section id="fish-menu-section" class="px-6 py-16 rounded-xl shadow-inner mb-12">
+            <div class="container mx-auto text-center">
+                <h2 class="text-4xl font-semibold mb-12 section-title inline-block">מנות דגים</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                    <!-- Fish Item: Salmon -->
+                    <div class="rounded-xl shadow-lg p-6 flex flex-col items-center menu-item-card">
+                        <img src="https://i.imgur.com/2lWNdur.jpeg" alt="דג סלמון" class="w-full h-48 object-cover rounded-md mb-4 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/300x200/DAA520/FFFFFF?text=סלמון';">
+                        <h3 class="text-2xl font-bold text-[--primary-text] mb-2">דג סלמון</h3>
+                        <p class="text-[--secondary-text] text-center mb-4 flex-grow">פילה סלמון עסיסי, אפוי בתנור עם עשבי תיבול טריים.</p>
+                        <button class="llm-button" data-dish-name="דג סלמון" onclick="window.getDishDescription(this)">✨ גלו עוד</button>
+                        <button class="llm-button mt-2" data-dish-name="דג סלמון" onclick="window.getDishStory(this)">✨ סיפור מנה (AI)</button>
+                    </div>
+
+                    <!-- Fish Item: Moroccan Fish -->
+                    <div class="rounded-xl shadow-lg p-6 flex flex-col items-center menu-item-card">
+                        <img src="https://i.imgur.com/uvHzBRR.jpeg" alt="דג מרוקאי" class="w-full h-48 object-cover rounded-md mb-4 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/300x200/DAA520/FFFFFF?text=דג+מרוקאי';">
+                        <h3 class="text-2xl font-bold text-[--primary-text] mb-2">דג מרוקאי</h3>
+                        <p class="text-[--secondary-text] text-center mb-4 flex-grow">דג ברוטב מרוקאי פיקנטי ועשיר, עם פלפלים ושום.</p>
+                        <button class="llm-button" data-dish-name="דג מרוקאי" onclick="window.getDishDescription(this)">✨ גלו עוד</button>
+                        <button class="llm-button mt-2" data-dish-name="דג מרוקאי" onclick="window.getDishStory(this)">✨ סיפור מנה (AI)</button>
+                    </div>
+
+                    <!-- Fish Item: Fish Patty -->
+                    <div class="rounded-xl shadow-lg p-6 flex flex-col items-center menu-item-card">
+                        <img src="https://i.imgur.com/oOnsC8r.jpeg" alt="קציצת דג" class="w-full h-48 object-cover rounded-md mb-4 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/300x200/DAA520/FFFFFF?text=קציצת+דג';">
+                        <h3 class="text-2xl font-bold text-[--primary-text] mb-2">קציצת דג</h3>
+                        <p class="text-[--secondary-text] text-center mb-4 flex-grow">קציצות דגים ביתיות ברוטב עגבניות עשיר, נימוחות וטעימות.</p>
+                        <button class="llm-button" data-dish-name="קציצת דג" onclick="window.getDishDescription(this)">✨ גלו עוד</button>
+                        <button class="llm-button mt-2" data-dish-name="קציצת דג" onclick="window.getDishStory(this)">✨ סיפור מנה (AI)</button>
+                    </div>
+
+                    <!-- Fish Item: Gefilte Fish -->
+                    <div class="rounded-xl shadow-lg p-6 flex flex-col items-center menu-item-card">
+                        <img src="https://i.imgur.com/EvD3Tn2.jpeg" alt="גפילטע פיש" class="w-full h-48 object-cover rounded-md mb-4 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/300x200/DAA520/FFFFFF?text=גפילטע+פיש';">
+                        <h3 class="text-2xl font-bold text-[--primary-text] mb-2">גפילטע פיש</h3>
+                        <p class="text-[--secondary-text] text-center mb-4 flex-grow">גפילטע פיש מסורתי בתיבול עדין, מוגש קר עם גזר.</p>
+                        <button class="llm-button" data-dish-name="גפילטע פיש" onclick="window.getDishDescription(this)">✨ גלו עוד</button>
+                        <button class="llm-button mt-2" data-dish-name="גפילטע פיש" onclick="window.getDishStory(this)">✨ סיפור מנה (AI)</button>
+                    </div>
+
+                    <!-- Fish Item: Stuffed Gefilte -->
+                    <div class="rounded-xl shadow-lg p-6 flex flex-col items-center menu-item-card">
+                        <img src="https://i.imgur.com/FFTDQU4.jpeg" alt="גפילטע ממולא" class="w-full h-48 object-cover rounded-md mb-4 shadow-md" onerror="this.onerror=null;this.src='https://placehold.co/300x200/DAA520/FFFFFF?text=גפילטע+ממולא';">
+                        <h3 class="text-2xl font-bold text-[--primary-text] mb-2">גפילטע ממולא</h3>
+                        <p class="text-[--secondary-text] text-center mb-4 flex-grow">דג ממולא עשיר בטעמים, מנה מיוחדת לאירועים חגיגיים.</p>
+                        <button class="llm-button" data-dish-name="גפילטע ממולא" onclick="window.getDishDescription(this)">✨ גלו עוד</button>
+                        <button class="llm-button mt-2" data-dish-name="גפילטע ממולא" onclick="window.getDishStory(this)">✨ סיפור מנה (AI)</button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
         <section id="location" class="px-6 py-16 text-center">
             <div class="container mx-auto text-center">
                 <h2 class="text-4xl font-semibold mb-12 section-title inline-block">מצאו אותנו</h2>
-                <div class="max-w-2xl mx-auto bg-[--primary-bg] rounded-xl shadow-lg p-8 border border-solid border-[--border-color]">
-                    <p class="text-xl text-[--primary-text] mb-4">
-                        <span class="font-bold text-[--accent-gold]">כתובתנו:</span> רחוב שאול המלך 3, בני ברק
+                <div class="max-w-2xl mx-auto rounded-xl shadow-lg p-8">
+                    <p class="text-xl mb-4">
+                        <span class="font-bold">כתובתנו:</span> רחוב שאול המלך 3, בני ברק
                     </p>
-                    <p class="text-xl text-[--primary-text] mb-6">
-                        <span class="font-bold text-[--accent-gold]">שעות פתיחה:</span>
+                    <p class="text-xl mb-6">
+                        <span class="font-bold">שעות פתיחה:</span>
                         <br>רביעי וחמישי: 16:00 - 02:00 (לפנות בוקר)
                     </p>
                     <a href="https://waze.com/ul?q=רחוב%20שאול%20המלל%203,%20בני%20ברק" target="_blank" class="inline-block waze-button">
@@ -29,8 +675,247 @@ w-full h-48 object-cover rounded-md mb-4 shadow-md" onerror="this.onerror=null;t
         </section>
     </main>
 
-    <!-- Footer -->
     <footer class="bg-[--header-footer-bg] text-white p-6 text-center mt-12 rounded-t-xl">
-        <p>&copy; 2025 הפונדק. כל הזכויות שמורות.</p>
-        <p class="text-sm mt-2">פותח ב-AI</p>
+        <p>&copy; 2025 כל הזכויות שמורות ל-HG פרוייקטים.</p>
     </footer>
+
+    <div id="dishDescriptionModal" class="modal">
+        <div class="modal-content text-right">
+            <span class="close-button" onclick="window.closeModal('dishDescriptionModal')">&times;</span>
+            <h3 class="text-2xl font-bold mb-4 text-[--accent-gold]" id="modalDishTitle"></h3>
+            <p class="text-lg mb-4 text-[--primary-text]" id="modalDishDescription"></p>
+            <div class="loading-spinner" id="dishLoadingSpinner"></div>
+        </div>
+    </div>
+
+    <div id="dishStoryModal" class="modal">
+        <div class="modal-content text-right">
+            <span class="close-button" onclick="window.closeModal('dishStoryModal')">&times;</span>
+            <h3 class="text-2xl font-bold mb-4 text-[--accent-gold]" id="modalDishStoryTitle"></h3>
+            <p class="text-lg mb-4 text-[--primary-text]" id="modalDishStoryContent"></p>
+            <div class="loading-spinner" id="dishStoryLoadingSpinner"></div>
+        </div>
+    </div>
+
+    <div id="eventTipsModal" class="modal">
+        <div class="modal-content text-right">
+            <span class="close-button" onclick="window.closeModal('eventTipsModal')">&times;</span>
+            <h3 class="text-2xl font-bold mb-4 text-[--accent-gold]">השראה לאירועים</h3>
+            <p class="text-lg mb-4 text-[--primary-text]" id="eventTipsContent"></p>
+            <div class="loading-spinner" id="eventTipsLoadingSpinner"></div>
+        </div>
+    </div>
+
+    <script>
+        const mainContentSections = ['main-menu-section', 'meat-snacks-menu-section', 'fish-menu-section'];
+        let activeNavLink = document.querySelector('.nav-link-active');
+
+        window.showSection = function(sectionIds, clickedNavLink) {
+            if (!Array.isArray(sectionIds)) {
+                sectionIds = [sectionIds];
+            }
+
+            mainContentSections.forEach(id => {
+                const section = document.getElementById(id);
+                if (section) {
+                    section.style.display = 'none';
+                }
+            });
+
+            sectionIds.forEach(id => {
+                const targetSection = document.getElementById(id);
+                if (targetSection) {
+                    targetSection.style.display = 'block';
+                }
+            });
+
+            if (activeNavLink) {
+                activeNavLink.classList.remove('nav-link-active');
+            }
+            if (clickedNavLink) {
+                clickedNavLink.classList.add('nav-link-active');
+                activeNavLink = clickedNavLink;
+            } else {
+                const mainMenuLink = document.querySelector('nav ul li a[onclick*=\'main-menu-section\']');
+                if (mainMenuLink) {
+                    mainMenuLink.classList.add('nav-link-active');
+                    activeNavLink = mainMenuLink;
+                } else {
+                    activeNavLink = null;
+                }
+            }
+
+            if (sectionIds.length > 0) {
+                const firstTargetSection = document.getElementById(sectionIds[0]);
+                if (firstTargetSection) {
+                    firstTargetSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            mainContentSections.forEach(id => {
+                const section = document.getElementById(id);
+                if (section) section.style.display = 'none';
+            });
+            const mainMenu = document.getElementById('main-menu-section');
+            if (mainMenu) mainMenu.style.display = 'block';
+
+            const dishDescriptionModal = document.getElementById('dishDescriptionModal');
+            if (dishDescriptionModal) {
+                dishDescriptionModal.style.display = 'none';
+            }
+            const dishStoryModal = document.getElementById('dishStoryModal');
+            if (dishStoryModal) {
+                dishStoryModal.style.display = 'none';
+            }
+            const eventTipsModal = document.getElementById('eventTipsModal');
+            if (eventTipsModal) {
+                eventTipsModal.style.display = 'none';
+            }
+        });
+
+        window.openModal = function(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        };
+
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        };
+
+        window.showSpinner = function(spinnerId) {
+            document.getElementById(spinnerId).style.display = 'block';
+        };
+
+        window.hideSpinner = function(spinnerId) {
+            document.getElementById(spinnerId).style.display = 'none';
+        };
+
+        window.getDishDescription = async function(buttonElement) {
+            const dishName = buttonElement.dataset.dishName;
+            const modal = document.getElementById('dishDescriptionModal');
+            const modalTitle = document.getElementById('modalDishTitle');
+            const modalDescription = document.getElementById('modalDishDescription');
+            const spinner = document.getElementById('dishLoadingSpinner');
+
+            modalTitle.textContent = `תיאור מנה: ${dishName}`;
+            modalDescription.textContent = '';
+            showSpinner(spinner.id);
+            openModal('dishDescriptionModal');
+
+            try {
+                let chatHistory = [];
+                const prompt = `Generate a short, elegant, and appealing description for a traditional Jewish dish called ${dishName}, emphasizing its gourmet quality and authenticity. Keep it to 2-3 sentences, in Hebrew.`;
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    modalDescription.textContent = text;
+                } else {
+                    modalDescription.textContent = "אירעה שגיאה בקבלת התיאור. אנא נסה שוב.";
+                }
+            } catch (error) {
+                console.error("Error fetching dish description:", error);
+                modalDescription.textContent = "שגיאה בתקשורת. אנא נסה שוב מאוחר יותר.";
+            } finally {
+                hideSpinner(spinner.id);
+            }
+        };
+
+        window.getDishStory = async function(buttonElement) {
+            const dishName = buttonElement.dataset.dishName;
+            const modal = document.getElementById('dishStoryModal');
+            const modalTitle = document.getElementById('modalDishStoryTitle');
+            const modalContent = document.getElementById('modalDishStoryContent');
+            const spinner = document.getElementById('dishStoryLoadingSpinner');
+
+            modalTitle.textContent = `סיפור המנה: ${dishName}`;
+            modalContent.textContent = '';
+            showSpinner(spinner.id);
+            openModal('dishStoryModal');
+
+            try {
+                let chatHistory = [];
+                const prompt = `Generate a short, charming, fictional folklore/origin story (2-3 sentences) for a traditional Jewish dish named ${dishName}, in Hebrew. Focus on its heritage and unique character. Make it sound elegant and authentic to a high-end restaurant.`;
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    modalContent.textContent = text;
+                } else {
+                    modalContent.textContent = "אירעה שגיאה בקבלת הסיפור. אנא נסה שוב.";
+                }
+            } catch (error) {
+                console.error("Error generating dish story:", error);
+                modalContent.textContent = "שגיאה בתקשורת עם ספר הסיפורים. אנא נסה שוב מאוחר יותר.";
+            } finally {
+                hideSpinner(spinner.id);
+            }
+        };
+
+        window.generateEventTips = async function() {
+            const modal = document.getElementById('eventTipsModal');
+            const tipsContent = document.getElementById('eventTipsContent');
+            const spinner = document.getElementById('eventTipsLoadingSpinner');
+
+            tipsContent.textContent = '';
+            showSpinner(spinner.id);
+            openModal('eventTipsModal');
+
+            try {
+                let chatHistory = [];
+                const prompt = `Provide 3-4 concise, elegant tips (in Hebrew) for hosting a small, luxurious event (up to 50 guests) at a traditional Jewish restaurant. Focus on themes like warmth, authenticity, refined cuisine, and a memorable experience.`;
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    tipsContent.textContent = text;
+                } else {
+                    tipsContent.textContent = "אירעה שגיאה בקבלת הטיפים. אנא נסה שוב.";
+                }
+            } catch (error) {
+                console.error("Error generating event tips:", error);
+                tipsContent.textContent = "שגיאה בתקשורת עם מערך תכנון האירועים. אנא נסה שוב מאוחר יותר.";
+            } finally {
+                hideSpinner(spinner.id);
+            }
+        };
+    </script>
+</body>
+</html>
